@@ -1,1 +1,1 @@
-Cardlebones (Huesos de Carta)
+Valimos, nos van a tirar
