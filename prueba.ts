@@ -1,0 +1,14 @@
+import { ListaSimple } from "./ListaSimple";
+import { ListaDoble } from "./ListaDoble";
+console.log("Lista Simple:");
+const simple = new ListaSimple();
+simple.agregar("A");
+simple.agregar("B");
+simple.agregar("C");
+simple.imprimir();
+console.log("Lista Doble:");
+const doble = new ListaDoble();
+doble.agregar(1);
+doble.agregar(2);
+doble.agregar(3);
+doble.imprimir();
