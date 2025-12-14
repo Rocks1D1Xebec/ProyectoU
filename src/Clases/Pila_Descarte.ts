@@ -1,51 +1,66 @@
 import { Carta } from "./Carta.js";
-import { Nodo_Carta } from "./Nodo_Carta.js";
+import { NodoCarta } from "./NodoCarta.js";
 
-export class Pila_Descarte{
-    public Top: Nodo_Carta | null=null;
-    constructor(){
-        this.Top = null;
-    }
+export class PilaDescarte {
+  Top: NodoCarta | null = null;
 
-    esta_Vacia(){
-        if(this.Top == null) return true;
-        else  return false; 
+  insertarFin(carta: Carta): void {
+    const nuevo = new NodoCarta(carta);
+    if (this.Top === null) {
+      this.Top = nuevo;
+    } 
+    else {
+      let actual = this.Top;
+      while(actual.siguiente !== null){
+        actual = actual.siguiente;
+      }
+      actual.siguiente = nuevo;
     }
+  }
 
-    insertar_Inicio(carta: Carta){
-        const cartaNueva = new Nodo_Carta(carta);
-        if(this.Top == null){
-            this.Top = cartaNueva;
-            return;
-        }
-        cartaNueva.Siguiente= this.Top;
-        this.Top = cartaNueva;
-    }
+  estaVacia(): boolean {
+    return this.Top === null;
+  }
 
-    insertar_Final(carta: Carta){
-        const cartaNueva = new Nodo_Carta(carta);
-        if(this.Top == null){
-            this.Top = cartaNueva;
-            return;
-        }
-        let actual = this.Top;
-        while(actual.Siguiente !== null){
-            actual = actual.Siguiente!;
-        }
-        actual.Siguiente = cartaNueva;
+  obtenerTodas(): Carta[] {
+    const resultado: Carta[] = [];
+    let actual = this.Top;
+    while (actual !== null){
+      resultado.push(actual.carta);
+      actual = actual.siguiente;
     }
+    return resultado;
+  }
+  
+  vaciarYDevolver(): Carta[]{
+    const cartas = this.obtenerTodas();
+    this.Top = null;
+    return cartas;
+  }
 
-    obtener_Cartas(){
-        let cartas = [];
-        let actual = this.Top;
-        while(actual !== null){
-            cartas.push(actual.Carta);
-            actual = actual.Siguiente!;
-        }
-        return cartas;
-    }
+  limpiar(): void {
+    this.Top = null;
+  }
 
-    limpiar(){
-        this.Top = null;
+  imprimir(): void {
+    let actual = this.Top;
+    while (actual !== null) {
+      console.log(actual.carta.toString());
+      actual = actual.siguiente;
     }
-}   
+  }
+
+  barajar(): void {
+  if (this.estaVacia()) return;
+  const todasLasCartas = this.obtenerTodas();
+  for (let i = todasLasCartas.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [todasLasCartas[i], todasLasCartas[j]] = [todasLasCartas[j]!, todasLasCartas[i]!];
+  }
+  this.Top = null;
+  for (const carta of todasLasCartas) {
+    this.insertarFin(carta);
+  }
+}
+
+}
