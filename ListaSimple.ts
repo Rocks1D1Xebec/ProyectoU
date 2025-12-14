@@ -1,4 +1,4 @@
-import { NodoSimple } from "./NodoSimple.js";
+import { NodoSimple } from "./NodoSimple";
 
 export class ListaSimple<T> {
     head: NodoSimple<T> | null = null;

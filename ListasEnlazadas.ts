@@ -1,5 +1,5 @@
-import { ListaSimple } from "./ListaSimple.js";
-import { buscarEnNListas } from "./buscarEnNListas.js";
+import { ListaSimple } from "./ListaSimple";
+import { buscarEnNListas } from "./buscarEnNListas";
 
 // ===== INSTANCIA 1 =====
 const lista1 = new ListaSimple<number>();

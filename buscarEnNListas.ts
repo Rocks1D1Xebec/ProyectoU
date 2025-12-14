@@ -1,4 +1,4 @@
-import { ListaSimple } from "./ListaSimple.js";
+import { ListaSimple } from "./ListaSimple";
 
 export function buscarEnNListas<T>(
     listas: ListaSimple<T>[],
