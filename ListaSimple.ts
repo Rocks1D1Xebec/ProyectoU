@@ -1,31 +1,27 @@
-export class NodoSimple{
-    dato : any;
-    siguiente : NodoSimple | null=null;
+import { NodoSimple } from "./NodoSimple.js";
 
-    constructor(dato : any){
-        this.dato = dato;
-    }
-}
-export class ListaSimple{
-    cabeza : NodoSimple | null = null;
+export class ListaSimple<T> {
+    head: NodoSimple<T> | null = null;
 
-    agregar(dato : any):void{
+    agregar(dato: T): void {
         const nuevo = new NodoSimple(dato);
-        if(this.cabeza === null){
-            this.cabeza = nuevo;
-        }else{
-            let actual = this.cabeza;
-            while(actual.siguiente !== null){
+        if (!this.head) {
+            this.head = nuevo;
+        } else {
+            let actual = this.head;
+            while (actual.siguiente) {
                 actual = actual.siguiente;
             }
             actual.siguiente = nuevo;
         }
     }
-    imprimir (): void{
-        let actual = this.cabeza;
-        while(actual !== null){
-            console.log(actual.dato);
+
+    buscar(valor: T): boolean {
+        let actual = this.head;
+        while (actual) {
+            if (actual.dato === valor) return true;
             actual = actual.siguiente;
         }
+        return false;
     }
 }
