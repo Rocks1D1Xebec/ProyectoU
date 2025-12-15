@@ -1,11 +1,139 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Cardlebones (Huesos de Carta)</title>
+    <link rel="stylesheet" href="./style.css">
 </head>
+
 <body>
-    <script type="module" src="./dist/ListasEnlazadas.js"></script>
+    <div id="game-container">
+        <!-- Background Overlay -->
+        <div class="background-overlay"></div>
+
+        <!-- Header -->
+        <header>
+            <div class="title-banner">
+                <!-- Using the generated banner or a CSS fallback -->
+                <div class="banner-img"></div>
+            </div>
+        </header>
+
+        <!-- Main Game Area -->
+        <main>
+            <!-- Player 1 Section (Left) -->
+            <section id="player1-area" class="player-section">
+                <div class="player-header">
+                    <h2>Jugador 1</h2>
+                </div>
+                <div class="columns-wrapper">
+                    <button id="p1-prev" class="nav-arrow">&lt;</button>
+                    <div class="columns-container" id="p1-columns">
+                        <!-- Columns will be injected by JS, but adding placeholders for visual -->
+                        <!-- Example structure for a column -->
+                        <div class="game-column">
+                            <div class="card-slot"></div>
+                            <div class="card-slot"></div>
+                            <div class="card-slot"></div>
+                        </div>
+                        <div class="game-column">
+                            <div class="card-slot"></div>
+                            <div class="card-slot"></div>
+                            <div class="card-slot"></div>
+                        </div>
+                        <div class="game-column">
+                            <div class="card-slot"></div>
+                            <div class="card-slot"></div>
+                            <div class="card-slot"></div>
+                        </div>
+                    </div>
+                    <button id="p1-next" class="nav-arrow">&gt;</button>
+                </div>
+                <!-- Navigation/Selector Controls -->
+                <div class="controls-area">
+                    <div class="selector-display-box">
+                        <span class="info-icon">i</span>
+                        <span id="selector-text">Selector: Lista Circular Doble</span>
+                    </div>
+                    <div class="score-display">
+                        <div class="scroll-bg">Puntuación: <span id="p1-score">0</span></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Center Area (Draw Pile) -->
+            <section id="center-area">
+                <div class="draw-pile-group">
+                    <div class="section-label">Pila de Robo</div>
+                    <div id="draw-pile" class="card-stack">
+                        <!-- Card Back Image -->
+                        <img src="./assets/card_back.png" class="pile-card" alt="Deck">
+                    </div>
+                    <div class="section-label-bottom">POP (Robar)</div>
+                </div>
+
+                <div class="main-action-btn-container">
+                    <button id="draw-btn" class="gold-coin-btn">
+                        <div class="card-icon"></div>
+                    </button>
+                    <div class="btn-label">ROBAR CARTA</div>
+                </div>
+
+                <div class="turn-indicator">
+                    <div class="compass"></div>
+                    <div class="turn-text">TURNO DE: <span id="current-player-name">JUGADOR 1</span></div>
+                </div>
+            </section>
+
+            <!-- Player 2 Section (Right) -->
+            <section id="player2-area" class="player-section">
+                <div class="player-header">
+                    <h2>Jugador 2</h2>
+                </div>
+                <div class="content-row">
+                    <div class="columns-container" id="p2-columns">
+                        <!-- Columns placeholder -->
+                        <div class="game-column">
+                            <div class="card-slot"></div>
+                            <div class="card-slot"></div>
+                            <div class="card-slot"></div>
+                        </div>
+                        <div class="game-column">
+                            <div class="card-slot"></div>
+                            <div class="card-slot"></div>
+                            <div class="card-slot"></div>
+                        </div>
+                        <div class="game-column">
+                            <div class="card-slot"></div>
+                            <div class="card-slot"></div>
+                            <div class="card-slot"></div>
+                        </div>
+                    </div>
+
+                    <!-- Game Log (Bitácora) -->
+                    <div class="game-log-wrapper">
+                        <div class="log-paper">
+                            <div class="log-header-text">Bitácora<br><small>(Lista Simple)</small></div>
+                            <div id="game-log" class="log-content">
+                                <div class="log-entry">J1: Robó 8♣</div>
+                                <div class="log-arrow">↓</div>
+                                <div class="log-entry">J2: Colocó 5♠ en Col 2</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="controls-area-right">
+                    <button id="view-log-btn" class="wood-btn">BITÁCORA</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module" src="./dist/app.js"></script>
 </body>
+
 </html>
