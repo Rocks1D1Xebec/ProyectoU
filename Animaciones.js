@@ -1,35 +1,51 @@
-const carta = document.getElementById("carta1");
+const mazo = document.getElementById("mazo");
+const tablero = document.getElementById("tablero");
 
-// Verificamos que la carta exista
-if (carta) {
+// Cartas simuladas (solo rangos de ejemplo)
+const cartasDisponibles = ["A♠","2♠","3♠","4♠","5♠","6♠","7♠","8♠","9♠"];
+let cartasEnTablero = [];
 
-  // Animación al colocar la carta
-  function animarColocarCarta() {
-    carta.classList.add("animate__animated", "animate__slideInUp");
-  }
+// Función para robar carta
+function robarCarta() {
+  if (cartasDisponibles.length === 0) return alert("Mazo vacío!");
+  const cartaValor = cartasDisponibles[Math.floor(Math.random() * cartasDisponibles.length)];
+  const carta = document.createElement("div");
+  carta.classList.add("carta", "animate__animated", "animate__slideInUp");
+  carta.textContent = cartaValor;
+  
+  // Agregar al tablero
+  tablero.appendChild(carta);
 
-  // Animación al eliminar la carta
-  function animarEliminarCarta() {
-    carta.classList.add("animate__animated", "animate__hinge");
-
+  // Verificar si ya existe en tablero (simula ataque/eliminación)
+  if (cartasEnTablero.includes(cartaValor)) {
     setTimeout(() => {
-      carta.remove(); // elimina del tablero
-    }, 2000);
+      animarEliminarCarta(carta);
+    }, 500); // pequeño delay para ver la carta
+  } else {
+    cartasEnTablero.push(cartaValor);
   }
 
-  // Simula colocar la carta al cargar la página
-  animarColocarCarta();
+  // Evento click para eliminar manual (opcional)
+  carta.addEventListener("click", () => animarEliminarCarta(carta));
 
-  // Click para simular ataque/eliminación
-  carta.addEventListener("click", animarEliminarCarta);
-
-  // Limpia las clases después de cada animación
+  // Limpiar animaciones de entrada
   carta.addEventListener("animationend", () => {
-    carta.classList.remove(
-      "animate__animated",
-      "animate__slideInUp",
-      "animate__hinge"
-    );
+    carta.classList.remove("animate__animated", "animate__slideInUp");
   });
-
 }
+
+// Animación de eliminación tipo "quebrado"
+function animarEliminarCarta(carta) {
+  carta.classList.add("animate__animated", "animate__hinge", "carta-rotar");
+
+  setTimeout(() => {
+    carta.remove();
+  }, 2000);
+
+  carta.addEventListener("animationend", () => {
+    carta.classList.remove("animate__animated", "animate__hinge", "carta-rotar");
+  });
+}
+
+// Evento del botón robar
+document.getElementById("robar").addEventListener("click", robarCarta);

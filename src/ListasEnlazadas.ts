@@ -1,51 +1,39 @@
-import { PilaDescarte } from "./Clases/Pila_Descarte.js";
-import { Carta } from "./Clases/Carta.js";
+import { ListaSimple } from "./ListaSimple";
+import { buscarEnNListas } from "./buscarEnNListas";
 
-function pruebaMetodosPilaDescarte() {
-//Crear Barajas
-    const pila1 = new PilaDescarte();
-    const pila2 = new PilaDescarte();
+// ===== INSTANCIA 1 =====
+const lista1 = new ListaSimple<number>();
+lista1.agregar(1);
+lista1.agregar(2);
+lista1.agregar(3);
 
-    pila1.insertarFin(new Carta(1, "Corazones"));
-    pila1.insertarFin(new Carta(13, "Picas"));
-    pila1.insertarFin(new Carta(10, "Diamantes"));
+// ===== INSTANCIA 2 =====
+const lista2 = new ListaSimple<number>();
+lista2.agregar(10);
+lista2.agregar(20);
+lista2.agregar(30);
 
-    pila2.insertarFin(new Carta(7, "Tréboles"));
-    pila2.insertarFin(new Carta(11, "Corazones"));
-    pila2.insertarFin(new Carta(5, "Picas"));
+// ===== PRUEBAS INDIVIDUALES =====
+console.log("Buscar 2 en lista1:", lista1.buscar(2)); // true
+console.log("Buscar 5 en lista1:", lista1.buscar(5)); // false
 
-//Imprimir
-    console.log("Pila 1 Contenido");
-    pila1.imprimir();
+console.log("Buscar 20 en lista2:", lista2.buscar(20)); // true
+console.log("Buscar 99 en lista2:", lista2.buscar(99)); // false
 
-    console.log("Pila 2 Contenido");
-    pila2.imprimir();
+// ===== PRUEBA CON N LISTAS =====
+const listas = [lista1, lista2];
 
-//Barajear
-    pila1.barajar();
-    pila2.barajar();
+console.log(
+    "Buscar 3 en N listas:",
+    buscarEnNListas(listas, 3)
+); // true
 
-    console.log("Pila 1 después de barajar 2 cartas");
-    pila1.imprimir();
-    console.log("Pila 2 después de barajar 2 cartas");
-    pila2.imprimir();
+console.log(
+    "Buscar 30 en N listas:",
+    buscarEnNListas(listas, 30)
+); // true
 
-//Vaciar y devolver
-    const cartasSacadas = pila1.vaciarYDevolver();
-    console.log("Cartas devueltas de Pila 1");
-    for (const carta of cartasSacadas) {
-        console.log(carta.toString());
-    }
-
-    console.log("Pila 1 después de vaciar");
-    pila1.imprimir();
-
-//Limpiar
-    pila2.limpiar();
-    console.log("Pila 2 después de limpiar");
-    pila2.imprimir();
-
-    console.log("FIN");
-}
-
-pruebaMetodosPilaDescarte();
+console.log(
+    "Buscar 100 en N listas:",
+    buscarEnNListas(listas, 100)
+); // false

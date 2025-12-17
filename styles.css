@@ -1,3 +1,31 @@
+body {
+  font-family: Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 20px;
+}
+
+#mazo {
+  width: 80px;
+  height: 120px;
+  border: 2px solid #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  cursor: pointer;
+  background: lightblue;
+}
+
+#tablero {
+  display: grid;
+  grid-template-columns: repeat(3, 80px);
+  grid-gap: 10px;
+}
+
 .carta {
   width: 80px;
   height: 120px;
@@ -14,4 +42,16 @@
 
 .carta:hover {
   transform: scale(1.05);
+}
+
+/* Animación extra para que "parezca que se rompe" */
+.carta-rotar {
+  transform-origin: top left;
+  animation: rotarCaer 2s forwards;
+}
+
+@keyframes rotarCaer {
+  0% { transform: rotate(0deg) translateY(0); opacity: 1; }
+  50% { transform: rotate(45deg) translateY(50px); opacity: 0.8; }
+  100% { transform: rotate(90deg) translateY(200px); opacity: 0; }
 }
