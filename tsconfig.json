@@ -38,5 +38,7 @@
   },
   "exclude": [
     "apaza",
+    "node_modules",
+    "dist"
   ]
 }

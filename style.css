@@ -729,3 +729,174 @@ body {
         opacity: 1;
     }
 }
+
+/* Animación: Brillo rojo para destrucción */
+.destroy-highlight {
+    animation: destroyGlow 0.5s ease;
+    box-shadow: 0 0 30px #ff3333, 0 0 60px #cc0000 !important;
+    border: 2px solid #ff3333 !important;
+}
+
+@keyframes destroyGlow {
+
+    0%,
+    100% {
+        filter: brightness(1);
+        box-shadow: 0 0 15px #cc0000;
+    }
+
+    50% {
+        filter: brightness(1.5);
+        box-shadow: 0 0 40px #ff3333, 0 0 70px #cc0000;
+    }
+}
+
+/* Animación: Brillo azul para secuencia (escalera) */
+.sequence-highlight {
+    animation: sequenceGlow 0.8s ease;
+    box-shadow: 0 0 30px #00ffff, 0 0 60px #0088ff !important;
+    border: 2px solid #00ffff !important;
+}
+
+@keyframes sequenceGlow {
+
+    0%,
+    100% {
+        filter: brightness(1);
+        box-shadow: 0 0 15px #0088ff;
+    }
+
+    50% {
+        filter: brightness(1.5);
+        box-shadow: 0 0 50px #00ffff, 0 0 80px #0088ff;
+    }
+}
+
+/* Tooltips para estructuras de datos */
+.tooltip-container {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip-container .tooltip-text {
+    visibility: hidden;
+    width: 280px;
+    background-color: rgba(20, 10, 5, 0.95);
+    color: var(--text-main);
+    text-align: left;
+    border-radius: 6px;
+    padding: 12px;
+    position: absolute;
+    z-index: 1000;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.3s, visibility 0.3s;
+    border: 1px solid var(--gold-border);
+    font-size: 0.8rem;
+    line-height: 1.4;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+}
+
+.tooltip-container .tooltip-text::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -8px;
+    border-width: 8px;
+    border-style: solid;
+    border-color: var(--gold-border) transparent transparent transparent;
+}
+
+/* Desglose de puntuación final */
+.breakdown-container {
+    display: flex;
+    justify-content: space-around;
+    gap: 20px;
+    margin-top: 20px;
+    text-align: left;
+}
+
+.player-breakdown {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid var(--gold-border);
+    flex: 1;
+}
+
+.player-breakdown h4 {
+    color: var(--gold-glow);
+    border-bottom: 1px solid var(--gold-border);
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.player-breakdown ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.player-breakdown li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 0.9rem;
+}
+
+.breakdown-bonus {
+    font-size: 0.8rem;
+    padding: 2px 5px;
+    border-radius: 4px;
+    margin-left: 5px;
+    font-weight: bold;
+}
+
+.breakdown-bonus.secuencia {
+    color: #00ffff;
+    background: rgba(0, 255, 255, 0.1);
+}
+
+.breakdown-bonus.par {
+    color: #ffd700;
+    background: rgba(255, 215, 0, 0.1);
+}
+
+.breakdown-bonus.trio {
+    color: #ffaa00;
+    background: rgba(255, 170, 0, 0.1);
+}
+
+.total-score {
+    margin-top: 10px;
+    text-align: right;
+    font-size: 1.2rem;
+    color: var(--text-main);
+    font-weight: bold;
+}
+
+.tooltip-container:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+}
+
+.tooltip-title {
+    color: var(--gold-glow);
+    font-weight: bold;
+    margin-bottom: 6px;
+    font-size: 0.9rem;
+}
+
+.tooltip-code {
+    font-family: monospace;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 2px 5px;
+    border-radius: 3px;
+    color: #aaffaa;
+}

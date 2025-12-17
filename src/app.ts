@@ -291,129 +291,119 @@ function drawCard() {
   }
 }
 
+let isProcessingTurn = false;
+
 // Place card
-function placeCard(playerIdx: number, colIdx: number) {
-  if (!currentCard || playerIdx !== currentPlayerIndex) return;
+async function placeCard(playerIdx: number, colIdx: number) {
+  if (isProcessingTurn || !currentCard || playerIdx !== currentPlayerIndex) return;
   
   const jugadorActual = playerIdx === 0 ? game.jugador1 : game.jugador2;
   const oponente = playerIdx === 0 ? game.jugador2 : game.jugador1;
   
-  // Check if column is full (Lista Doble tiene máximo 3 nodos)
   if (jugadorActual.tablero.columnas[colIdx]!.estaLlena()) {
     console.warn("Columna llena - no se puede colocar");
     return;
   }
+
+  isProcessingTurn = true; // Bloquear interacciones
   
   console.group(`COLOCAR CARTA en Columna ${colIdx}`);
-  console.log("Columna ANTES =", jugadorActual.tablero.columnas[colIdx]);
-  console.log("columna.top ANTES =", jugadorActual.tablero.columnas[colIdx]!.top);
   
-  // Place card - insertarFinal() agrega nodo al final de la lista doble
+  // Place card
   jugadorActual.tablero.colocarCarta(currentCard, colIdx);
+  render(); // Mostrar carta colocada
   
-  console.log("Columna DESPUES =", jugadorActual.tablero.columnas[colIdx]);
-  console.log("columna.top DESPUES =", jugadorActual.tablero.columnas[colIdx]!.top);
-  console.log("NOTA: Solo el ULTIMO slot vacio de cada columna esta disponible (insercion secuencial)");
-  
-  // Renderizar primero para mostrar la carta colocada
-  render();
-  
-  // Attack: find opponent cards with same rank to eliminate
+  // Guardar referencia localmente pues currentCard cambiará
+  const cartaColocada = currentCard;
   const cartasEliminadas: string[] = [];
   const nodosAEliminar: typeof columnaOponente.top[] = [];
   const columnaOponente = oponente.tablero.columnas[colIdx]!;
   let actual = columnaOponente.top;
   
-  if (actual) {
-    console.group("ATAQUE - Buscando cartas del mismo rango");
-    console.log("columnaOponente =", columnaOponente);
-  }
-  
-  // Collect cards to eliminate (don't eliminate yet)
+  // Buscar cartas para ataque
   while (actual) {
-    if (actual.carta.getRango() === currentCard.getRango()) {
+    if (actual.carta.getRango() === cartaColocada.getRango()) {
       cartasEliminadas.push(actual.carta.toString());
       nodosAEliminar.push(actual);
-      console.log("Carta a eliminar =", actual.carta);
     }
     actual = actual.siguiente;
   }
   
-  // Animate destruction on visible cards (in opponent's board)
+  // Animación de ataque (Rojo -> Hinge -> Eliminar)
   if (cartasEliminadas.length > 0) {
     const oponenteBoard = playerIdx === 0 ? board1 : board0;
     const slots = oponenteBoard.querySelectorAll(".card-slot");
-    
-    // Find visual cards to animate
-    const cartaColocada = currentCard; // Save reference before it might become null
+    const visualCards: Element[] = [];
+
+    // FASE 1: Iluminar Rojo (Búsqueda)
     const oponenteCartas = columnaOponente.recorrerAdelante();
     oponenteCartas.forEach((carta, rowIdx) => {
       if (carta.getRango() === cartaColocada.getRango()) {
-        // Calculate slot index: row * 3 + col (CSS grid order)
         const slotIdx = rowIdx * 3 + colIdx;
-        const slot = slots[slotIdx];
-        const cardElement = slot?.querySelector(".card-entity");
-        if (cardElement) {
-          // Add animate.css hinge animation
-          cardElement.classList.add("animate__animated", "animate__hinge");
-          console.log("Animando destruccion en slot", slotIdx);
+        const cardEl = slots[slotIdx]?.querySelector(".card-entity");
+        if (cardEl) {
+           cardEl.classList.add("destroy-highlight");
+           visualCards.push(cardEl);
         }
       }
     });
+
+    if (visualCards.length > 0) {
+        await delay(600); // 600ms de brillo rojo
+        // Quitar highlight rojo
+        visualCards.forEach(el => el.classList.remove("destroy-highlight"));
+    }
+
+    // FASE 2: Animación de destrucción (Hinge)
+    visualCards.forEach(cardEl => {
+      cardEl.classList.add("animate__animated", "animate__hinge");
+    });
     
-    // Show recycle indicator
     recycleIndicator.style.display = "block";
+    await delay(1500); // Esperar a que caigan
     
-    // Wait for animation then update data structure
-    setTimeout(() => {
-      // Now actually eliminate from data structure
-      nodosAEliminar.forEach(nodo => {
-        if (nodo) {
-          game.mazo.push(nodo.carta);
-          columnaOponente.eliminarNodo(nodo);
-        }
-      });
-      
-      // Animación de shuffle compartida
-      animateShuffle();
-      game.mazo.barajar();
-      console.log("Eliminadas y recicladas:", cartasEliminadas.join(", "));
-      console.log("game.mazo despues de reciclar =", game.mazo);
-      console.groupEnd();
-      
-      recycleIndicator.style.display = "none";
-      render(); // Re-render after elimination
-    }, 1500);
+    // FASE 3: Eliminar de datos y reciclar
+    nodosAEliminar.forEach(nodo => {
+      if (nodo) {
+        game.mazo.push(nodo.carta);
+        columnaOponente.eliminarNodo(nodo);
+      }
+    });
+    
+    animateShuffle();
+    game.mazo.barajar();
+    console.log("Eliminadas y recicladas:", cartasEliminadas.join(", "));
+    
+    recycleIndicator.style.display = "none";
+    render(); // Re-renderizar tablero sin cartas
   }
   
-  console.groupEnd(); // Cerrar grupo COLOCAR CARTA
+  console.groupEnd();
   
-  // Add to history (Lista Enlazada Simple - agregar al final)
-  console.log("Historial.agregar() - nuevo nodo al final de Lista Simple");
+  // Historial
   game.historial.agregar(
     game.historial.obtenerNumeroTurno() + 1,
     jugadorActual.nombre,
-    currentCard.toString(),
+    cartaColocada.toString(),
     colIdx,
     cartasEliminadas
   );
-  console.log("game.historial.cola (ultimo nodo) =", game.historial.cola);
   
-  // Log estado completo después del turno
   debugDataStructures(`TURNO ${game.historial.obtenerNumeroTurno()}`);
   
-  // Switch turn
+  // Cambio de turno
   currentCard = null;
   currentPlayerIndex = currentPlayerIndex === 0 ? 1 : 0;
   
-  // Clear animation state after render
+  // Limpieza final
   setTimeout(() => { lastPlacedCard = null; }, 100);
+  isProcessingTurn = false; // Desbloquear
   
-  // Check win condition
   if (game.jugador1.tablero.estaLleno() || game.jugador2.tablero.estaLleno() || game.mazo.estaVacio()) {
     endGame();
   }
 }
+
 
 // Shuffle deck - can return drawn card and shuffle
 function shuffleDeck() {
@@ -459,24 +449,49 @@ function animateShuffle() {
 }
 
 // Helper: delay function
+// Helper: delay function
 function delay(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-// Detect bonus: same rank cards in column
-function detectarBonus(cartas: { carta: { getRango(): number } }[]): number {
-  if (cartas.length < 2) return 0;
+interface BonusResult {
+  puntosExtra: number;
+  multiplicador: number;
+  tipo: 'par' | 'trio' | 'secuencia' | 'nada';
+}
+
+// Calcular bonus de columna (Pares, Trios, Secuencias)
+function calcularBonusColumna(cartas: { carta: { getRango(): number } }[]): BonusResult {
+  if (cartas.length === 0) return { puntosExtra: 0, multiplicador: 1, tipo: 'nada' };
   
-  let bonus = 0;
-  const rangos = cartas.map(c => c.carta.getRango());
+  const rangos = cartas.map(c => c.carta.getRango()).sort((a,b) => a - b);
   
-  if (rangos[0] === rangos[1]) bonus++;
-  if (rangos.length === 3 && rangos[0] === rangos[2]) bonus++;
-  if (rangos.length === 3 && rangos[1] === rangos[2]) bonus++;
+  // Check secuencia (solo si hay 3 cartas)
+  if (rangos.length === 3) {
+      // Normal check (ej: 4,5,6)
+      const consecutivo = (rangos[0]! + 1 === rangos[1]) && (rangos[1]! + 1 === rangos[2]);
+      // A check special (2, 3, 14 -> asume A=1 para hacer 1,2,3)
+      const aSequence = (rangos[0] === 2 && rangos[1] === 3 && rangos[2] === 14);
+      
+      if (consecutivo || aSequence) {
+          return { puntosExtra: 0, multiplicador: 1.5, tipo: 'secuencia' };
+      }
+  }
   
-  if (bonus === 1) return 5;
-  if (bonus === 3) return 15;
-  return 0;
+  // Check pares/trios
+  let matches = 0;
+  if (rangos.length >= 2) {
+      if (rangos[0] === rangos[1]) matches++;
+  }
+  if (rangos.length === 3) {
+       if (rangos[1] === rangos[2]) matches++;
+       if (rangos[0] === rangos[2]) matches++; 
+  }
+  
+  if (matches === 3) return { puntosExtra: 0, multiplicador: 3, tipo: 'trio' }; // 3 iguales x3
+  if (matches === 1) return { puntosExtra: 0, multiplicador: 2, tipo: 'par' };   // 2 iguales x2
+  
+  return { puntosExtra: 0, multiplicador: 1, tipo: 'nada' };
 }
 
 // End game with counting animation
@@ -489,12 +504,16 @@ async function endGame() {
   const boards = [board0, board1];
   const jugadores = [game.jugador1, game.jugador2];
   
+  let breakdownHTML = '<div class="breakdown-container">';
+
   // Para cada jugador
   for (let playerIdx = 0; playerIdx < 2; playerIdx++) {
     const jugador = jugadores[playerIdx]!;
     const board = boards[playerIdx]!;
     const scoreEl = scoreElements[playerIdx]!;
     const slots = board.querySelectorAll(".card-slot");
+    
+    breakdownHTML += `<div class="player-breakdown"><h4>${jugador.nombre}</h4><ul>`;
     
     console.group(`Contando ${jugador.nombre}`);
     
@@ -504,6 +523,7 @@ async function endGame() {
       let actual = columna.top;
       let row = 0;
       const nodosColumna: typeof actual[] = [];
+      let columnaSumaBase = 0;
       
       // Recorrer con actual = actual.siguiente
       console.log(`  Columna ${col}:`);
@@ -514,9 +534,12 @@ async function endGame() {
         if (cardEl) {
           // Animación de conteo
           cardEl.classList.add("counting-card");
-          scores[playerIdx]! += actual.carta.getValor();
+          const valor = actual.carta.getValor();
+          columnaSumaBase += valor;
+          scores[playerIdx]! += valor;
+          
           scoreEl.textContent = scores[playerIdx]!.toString();
-          console.log(`    actual.carta = ${actual.carta.toString()}, puntos = ${actual.carta.getValor()}`);
+          console.log(`    actual.carta = ${actual.carta.toString()}, puntos = ${valor}`);
           
           await delay(400);
           cardEl.classList.remove("counting-card");
@@ -527,35 +550,61 @@ async function endGame() {
         row++;
       }
       
-      // Detectar bonus (mismo rango)
-      const bonus = detectarBonus(nodosColumna.filter(n => n !== null) as { carta: { getRango(): number } }[]);
-      if (bonus > 0) {
-        console.log(`    BONUS detectado: +${bonus} puntos`);
+      // Calcular Bonus
+      const stats = calcularBonusColumna(nodosColumna.filter(n => n !== null) as { carta: { getRango(): number } }[]);
+      let columnaTotal = columnaSumaBase;
+      let bonusTag = "";
+      
+      if (stats.tipo !== 'nada') {
+        const msg = `x${stats.multiplicador}`;
+        console.log(`    BONUS ${stats.tipo}: ${msg}`);
         
-        // Iluminar toda la columna con brillo dorado
+        const cssClass = stats.tipo === 'secuencia' ? "sequence-highlight" : "bonus-highlight";
+        
+        // Iluminar columna
         for (let r = 0; r < nodosColumna.length; r++) {
           const slotIdx = r * 3 + col;
           const cardEl = slots[slotIdx]?.querySelector(".card-entity");
-          cardEl?.classList.add("bonus-highlight");
+          cardEl?.classList.add(cssClass);
         }
         
-        scores[playerIdx]! += bonus;
+        // Aplicar bonus (Multiplicador)
+        let puntosAgregados = 0;
+        if (stats.multiplicador > 1) {
+             const nuevoTotal = Math.floor(columnaSumaBase * stats.multiplicador);
+             puntosAgregados = nuevoTotal - columnaSumaBase;
+             columnaTotal = nuevoTotal;
+             bonusTag = `<span class="breakdown-bonus ${stats.tipo}">x${stats.multiplicador} ${stats.tipo.toUpperCase()}</span>`;
+        } else {
+             puntosAgregados = stats.puntosExtra;
+             columnaTotal += puntosAgregados;
+             bonusTag = `<span class="breakdown-bonus ${stats.tipo}">+${stats.puntosExtra}</span>`;
+        }
+        
+        scores[playerIdx]! += puntosAgregados;
         scoreEl.textContent = scores[playerIdx]!.toString();
+        
         await delay(800);
         
         // Quitar highlight
         for (let r = 0; r < nodosColumna.length; r++) {
           const slotIdx = r * 3 + col;
           const cardEl = slots[slotIdx]?.querySelector(".card-entity");
-          cardEl?.classList.remove("bonus-highlight");
+          cardEl?.classList.remove(cssClass);
         }
       }
+      
+      // Add row to breakdown
+      breakdownHTML += `<li><span>Col ${col+1} (${columnaSumaBase})</span> <span>${bonusTag} <strong>${columnaTotal}</strong></span></li>`;
     }
+    
+    breakdownHTML += `</ul><div class="total-score">${scores[playerIdx]}</div></div>`;
     
     console.groupEnd();
     await delay(500);
   }
   
+  breakdownHTML += '</div>';
   console.groupEnd();
   
   // Determinar ganador
@@ -567,9 +616,8 @@ async function endGame() {
   else if (p2Score > p1Score) winner = game.jugador2.nombre;
   
   finalSummary.innerHTML = `
-    <p><b>${game.jugador1.nombre}</b>: ${p1Score} puntos</p>
-    <p><b>${game.jugador2.nombre}</b>: ${p2Score} puntos</p>
     <h3>${winner === "Empate" ? "¡Empate!" : `Ganador: ${winner}`}</h3>
+    ${breakdownHTML}
   `;
   
   window.openModal("modal-end");
